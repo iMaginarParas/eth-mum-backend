@@ -1,11 +1,32 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api import payments, merchants, invoices, refunds
+from contextlib import asynccontextmanager
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Create database tables if they don't exist
+    print("Starting up: Initializing database...")
+    from app.core.database import engine, Base
+    from app.models.merchant import Merchant
+    from app.models.payment import Payment
+    from app.models.refund import Refund
+
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+    print("✓ Database tables ready!")
+    yield
+    # Shutdown: Clean up resources
+    print("Shutting down...")
+
 
 app = FastAPI(
     title="PayLink API",
     description="USDT Payment Infrastructure for Global Businesses",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 # Configure CORS
