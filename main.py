@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api import payments, merchants, invoices, refunds
+from app.api import payments, merchants, invoices, refunds, checkout
 from contextlib import asynccontextmanager
 
 
@@ -45,6 +45,7 @@ app.include_router(merchants.router)
 app.include_router(payments.router)
 app.include_router(invoices.router)
 app.include_router(refunds.router)
+app.include_router(checkout.router)
 
 
 @app.get("/")
