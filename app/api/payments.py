@@ -74,6 +74,29 @@ async def get_payment_status(payment_id: str):
     return result.data[0]
 
 
+@router.get("/")
+async def list_merchant_payments(merchant: dict = Depends(get_merchant_by_api_key)):
+    """List all payments for the authenticated merchant"""
+    supabase = get_supabase()
+
+    result = supabase.table('payments').select('*').eq('merchant_id', merchant['id']).order('created_at', desc=True).execute()
+
+    return result.data
+
+
+@router.get("/{payment_id}")
+async def get_payment(payment_id: str):
+    """Get a specific payment by ID"""
+    supabase = get_supabase()
+
+    result = supabase.table('payments').select('*').eq('payment_id', payment_id).execute()
+
+    if not result.data or len(result.data) == 0:
+        raise HTTPException(status_code=404, detail="Payment not found")
+
+    return result.data[0]
+
+
 @router.post("/{payment_id}/confirm")
 async def confirm_payment(
     payment_id: str,

@@ -1,10 +1,24 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Header, Depends
 import secrets
 
 from app.core.supabase import get_supabase
 from app.schemas.merchant import MerchantCreate, MerchantResponse
 
 router = APIRouter(prefix="/api/merchants", tags=["merchants"])
+
+
+async def get_merchant_by_api_key(
+    api_key: str = Header(..., alias="X-API-Key")
+):
+    """Authenticate merchant by API key"""
+    supabase = get_supabase()
+
+    result = supabase.table('merchants').select('*').eq('api_key', api_key).eq('is_active', True).execute()
+
+    if not result.data or len(result.data) == 0:
+        raise HTTPException(status_code=401, detail="Invalid API key")
+
+    return result.data[0]
 
 
 @router.post("/register", response_model=MerchantResponse)
@@ -34,3 +48,9 @@ async def register_merchant(merchant_data: MerchantCreate):
     result = supabase.table('merchants').insert(merchant_dict).execute()
 
     return result.data[0]
+
+
+@router.get("/me", response_model=MerchantResponse)
+async def get_current_merchant(merchant: dict = Depends(get_merchant_by_api_key)):
+    """Get current merchant details by API key"""
+    return merchant
