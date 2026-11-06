@@ -4,11 +4,17 @@ from datetime import datetime
 from uuid import UUID
 
 
+class MerchantLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+
 class MerchantCreate(BaseModel):
     email: EmailStr
     business_name: str
     wallet_address: str
     payout_address: str
+    password: str
     webhook_url: Optional[str] = None
 
 

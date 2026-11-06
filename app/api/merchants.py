@@ -2,7 +2,8 @@ from fastapi import APIRouter, HTTPException, Header, Depends
 import secrets
 
 from app.core.supabase import get_supabase
-from app.schemas.merchant import MerchantCreate, MerchantResponse
+from app.core.security import hash_password, verify_password
+from app.schemas.merchant import MerchantCreate, MerchantResponse, MerchantLogin
 
 router = APIRouter(prefix="/api/merchants", tags=["merchants"])
 
@@ -35,11 +36,15 @@ async def register_merchant(merchant_data: MerchantCreate):
     # Generate API key
     api_key = f"pk_live_{secrets.token_urlsafe(32)}"
 
+    # Hash password
+    hashed_password = hash_password(merchant_data.password)
+
     merchant_dict = {
         "email": merchant_data.email,
         "business_name": merchant_data.business_name,
         "wallet_address": merchant_data.wallet_address,
         "payout_address": merchant_data.payout_address,
+        "password_hash": hashed_password,
         "webhook_url": merchant_data.webhook_url,
         "api_key": api_key,
         "is_active": True
@@ -48,6 +53,30 @@ async def register_merchant(merchant_data: MerchantCreate):
     result = supabase.table('merchants').insert(merchant_dict).execute()
 
     return result.data[0]
+
+
+@router.post("/login", response_model=MerchantResponse)
+async def login_merchant(login_data: MerchantLogin):
+    """Login merchant with email and password"""
+    supabase = get_supabase()
+
+    # Get merchant by email
+    result = supabase.table('merchants').select('*').eq('email', login_data.email).execute()
+
+    if not result.data or len(result.data) == 0:
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+
+    merchant = result.data[0]
+
+    # Verify password
+    if not verify_password(login_data.password, merchant.get('password_hash', '')):
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+
+    # Check if account is active
+    if not merchant.get('is_active', False):
+        raise HTTPException(status_code=403, detail="Account is inactive")
+
+    return merchant
 
 
 @router.get("/me", response_model=MerchantResponse)
