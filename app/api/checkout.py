@@ -22,9 +22,10 @@ async def checkout_page(payment_id: str):
             <title>Payment Not Found</title>
             <meta name="viewport" content="width=device-width, initial-scale=1">
         </head>
-        <body style="font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f5f5f5;">
+        <body style="font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
             <div style="text-align: center; padding: 40px; background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                <h1 style="color: #ff4444;">❌ Payment Not Found</h1>
+                <img src="/static/logo.png" alt="PayLink Logo" style="width: 100px; height: auto; margin-bottom: 20px;">
+                <h1 style="color: #ff4444;">Payment Not Found</h1>
                 <p>This payment link is invalid or has expired.</p>
             </div>
         </body>
@@ -42,11 +43,12 @@ async def checkout_page(payment_id: str):
             <title>Payment Expired</title>
             <meta name="viewport" content="width=device-width, initial-scale=1">
         </head>
-        <body style="font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f5f5f5;">
+        <body style="font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
             <div style="text-align: center; padding: 40px; background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 500px;">
-                <h1 style="color: #ff9800;">⏰ Payment Expired</h1>
+                <img src="/static/logo.png" alt="PayLink Logo" style="width: 100px; height: auto; margin-bottom: 20px;">
+                <h1 style="color: #ff9800;">Payment Expired</h1>
                 <p>This payment request has expired.</p>
-                <p style="color: #666;">Payment ID: {payment_id}</p>
+                <p style="color: #666; font-size: 12px; margin-top: 20px;">Payment ID: {payment_id}</p>
             </div>
         </body>
         </html>
@@ -60,12 +62,15 @@ async def checkout_page(payment_id: str):
             <title>Payment Complete</title>
             <meta name="viewport" content="width=device-width, initial-scale=1">
         </head>
-        <body style="font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f5f5f5;">
+        <body style="font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
             <div style="text-align: center; padding: 40px; background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 500px;">
-                <h1 style="color: #00d4aa;">✅ Payment Complete!</h1>
+                <img src="/static/logo.png" alt="PayLink Logo" style="width: 100px; height: auto; margin-bottom: 20px;">
+                <h1 style="color: #00d4aa;">Payment Complete!</h1>
                 <p>This invoice has already been paid.</p>
-                <p style="color: #666;">Payment ID: {payment_id}</p>
-                <p style="color: #666;">TX: {payment.get('tx_hash', 'N/A')[:20]}...</p>
+                <div style="background: #f5f6fa; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                    <p style="color: #666; font-size: 12px; margin: 5px 0;">Payment ID: {payment_id}</p>
+                    <p style="color: #666; font-size: 12px; margin: 5px 0;">TX: {payment.get('tx_hash', 'N/A')[:20]}...</p>
+                </div>
             </div>
         </body>
         </html>
@@ -250,8 +255,8 @@ async def checkout_page(payment_id: str):
     <body>
         <div class="container">
             <div class="header">
-                <div class="logo">💳 PayLink</div>
-                <p style="color: #636e72;">Crypto Payment Gateway</p>
+                <img src="/static/logo.png" alt="PayLink Logo" style="width: 120px; height: auto; margin-bottom: 15px;">
+                <p style="color: #636e72; font-weight: 500;">Crypto Payment Gateway</p>
             </div>
 
             <div style="text-align: center;">
