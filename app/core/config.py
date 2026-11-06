@@ -3,12 +3,9 @@ from typing import Optional
 
 
 class Settings(BaseSettings):
-    # Supabase
+    # Supabase (Only need these two!)
     SUPABASE_URL: str
     SUPABASE_ANON_KEY: str
-
-    # Database (PostgreSQL connection string for SQLAlchemy)
-    DATABASE_URL: Optional[str] = None
 
     # Whitechain
     WHITECHAIN_RPC_URL: str = "https://rpc.testnet.whitechain.io"

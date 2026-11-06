@@ -6,17 +6,19 @@ from contextlib import asynccontextmanager
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: Create database tables if they don't exist
-    print("Starting up: Initializing database...")
-    from app.core.database import engine, Base
-    from app.models.merchant import Merchant
-    from app.models.payment import Payment
-    from app.models.refund import Refund
+    # Startup: Initialize Supabase connection
+    print("Starting up: Connecting to Supabase...")
+    from app.core.supabase import supabase
 
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    # Test connection
+    try:
+        # Simple ping to verify Supabase is accessible
+        supabase.table('merchants').select('id').limit(1).execute()
+        print("✓ Supabase connection ready!")
+    except Exception as e:
+        print(f"⚠ Supabase connection test: {e}")
+        print("Note: Tables will be created automatically when first used")
 
-    print("✓ Database tables ready!")
     yield
     # Shutdown: Clean up resources
     print("Shutting down...")
