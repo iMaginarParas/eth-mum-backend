@@ -57,7 +57,7 @@ async def create_checkout_session(
         description=payment_data.description,
         success_url=payment_data.success_url,
         cancel_url=payment_data.cancel_url,
-        metadata=payment_data.metadata,
+        payment_metadata=payment_data.metadata,
         expires_at=expires_at
     )
 

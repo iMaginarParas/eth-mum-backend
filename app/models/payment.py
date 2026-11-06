@@ -31,7 +31,7 @@ class Payment(Base):
 
     order_id = Column(String, nullable=True)
     description = Column(String, nullable=True)
-    metadata = Column(String, nullable=True)
+    payment_metadata = Column(String, nullable=True)
 
     checkout_url = Column(String, nullable=True)
     success_url = Column(String, nullable=True)
