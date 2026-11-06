@@ -1,45 +1,36 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from fastapi import APIRouter, HTTPException
 import secrets
 
-from app.core.database import get_db
-from app.models.merchant import Merchant
+from app.core.supabase import get_supabase
 from app.schemas.merchant import MerchantCreate, MerchantResponse
 
 router = APIRouter(prefix="/api/merchants", tags=["merchants"])
 
 
 @router.post("/register", response_model=MerchantResponse)
-async def register_merchant(
-    merchant_data: MerchantCreate,
-    db: AsyncSession = Depends(get_db)
-):
+async def register_merchant(merchant_data: MerchantCreate):
     """Register a new merchant"""
+    supabase = get_supabase()
 
     # Check if email already exists
-    result = await db.execute(
-        select(Merchant).where(Merchant.email == merchant_data.email)
-    )
-    existing_merchant = result.scalar_one_or_none()
+    existing = supabase.table('merchants').select('*').eq('email', merchant_data.email).execute()
 
-    if existing_merchant:
+    if existing.data and len(existing.data) > 0:
         raise HTTPException(status_code=400, detail="Email already registered")
 
     # Generate API key
     api_key = f"pk_live_{secrets.token_urlsafe(32)}"
 
-    merchant = Merchant(
-        email=merchant_data.email,
-        business_name=merchant_data.business_name,
-        wallet_address=merchant_data.wallet_address,
-        payout_address=merchant_data.payout_address,
-        webhook_url=merchant_data.webhook_url,
-        api_key=api_key
-    )
+    merchant_dict = {
+        "email": merchant_data.email,
+        "business_name": merchant_data.business_name,
+        "wallet_address": merchant_data.wallet_address,
+        "payout_address": merchant_data.payout_address,
+        "webhook_url": merchant_data.webhook_url,
+        "api_key": api_key,
+        "is_active": True
+    }
 
-    db.add(merchant)
-    await db.commit()
-    await db.refresh(merchant)
+    result = supabase.table('merchants').insert(merchant_dict).execute()
 
-    return merchant
+    return result.data[0]
