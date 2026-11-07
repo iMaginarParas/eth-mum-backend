@@ -3,7 +3,12 @@ import secrets
 
 from app.core.supabase import get_supabase
 from app.core.security import hash_password, verify_password
-from app.schemas.merchant import MerchantCreate, MerchantResponse, MerchantLogin
+from app.schemas.merchant import (
+    MerchantCreate,
+    MerchantResponse,
+    MerchantLogin,
+    MerchantUpdate,
+)
 
 router = APIRouter(prefix="/api/merchants", tags=["merchants"])
 
@@ -83,3 +88,40 @@ async def login_merchant(login_data: MerchantLogin):
 async def get_current_merchant(merchant: dict = Depends(get_merchant_by_api_key)):
     """Get current merchant details by API key"""
     return merchant
+
+
+@router.patch("/me", response_model=MerchantResponse)
+async def update_current_merchant(
+    merchant_data: MerchantUpdate,
+    merchant: dict = Depends(get_merchant_by_api_key),
+):
+    """Update editable business details for the authenticated merchant."""
+    supabase = get_supabase()
+    updates = merchant_data.model_dump(exclude_unset=True)
+
+    if "email" in updates and updates["email"] != merchant["email"]:
+        existing = (
+            supabase.table("merchants")
+            .select("id")
+            .eq("email", updates["email"])
+            .execute()
+        )
+        if any(row["id"] != merchant["id"] for row in (existing.data or [])):
+            raise HTTPException(status_code=400, detail="Email already registered")
+
+    if "wallet_address" in updates and "payout_address" not in updates:
+        updates["payout_address"] = updates["wallet_address"]
+
+    if not updates:
+        return merchant
+
+    result = (
+        supabase.table("merchants")
+        .update(updates)
+        .eq("id", merchant["id"])
+        .execute()
+    )
+    if not result.data:
+        raise HTTPException(status_code=500, detail="Failed to update business details")
+
+    return result.data[0]

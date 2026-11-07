@@ -18,6 +18,14 @@ class MerchantCreate(BaseModel):
     webhook_url: Optional[str] = None
 
 
+class MerchantUpdate(BaseModel):
+    email: Optional[EmailStr] = None
+    business_name: Optional[str] = None
+    wallet_address: Optional[str] = None
+    payout_address: Optional[str] = None
+    webhook_url: Optional[str] = None
+
+
 class MerchantResponse(BaseModel):
     id: UUID
     email: str
