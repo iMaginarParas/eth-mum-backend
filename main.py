@@ -26,7 +26,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="PayLink API",
+    title="Pocket Pay API",
     description="USDT Payment Infrastructure for Global Businesses",
     version="1.0.0",
     lifespan=lifespan
@@ -55,7 +55,7 @@ app.include_router(checkout.router)
 @app.get("/")
 async def root():
     return {
-        "message": "PayLink API - USDT Payment Infrastructure",
+        "message": "Pocket Pay API - USDT Payment Infrastructure",
         "version": "1.0.0",
         "docs": "/docs"
     }
